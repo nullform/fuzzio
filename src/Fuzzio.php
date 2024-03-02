@@ -52,10 +52,15 @@ class Fuzzio
     /**
      * @param string $needle Reference string.
      * @param string[]|null $haystack Strings for immediate similarity calculation.
+     * @param callable|null $normalizer
+     * @uses Fuzzio::setNormalizer()
+     * @uses Fuzzio::setHaystack()
      */
-    public function __construct($needle, $haystack = null)
+    public function __construct($needle, $haystack = null, $normalizer = null)
     {
         $this->needle = (string)$needle;
+
+        $this->setNormalizer($normalizer);
 
         if (\is_array($haystack) && !empty($haystack)) {
             $this->setHaystack($haystack);

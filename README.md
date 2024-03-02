@@ -85,14 +85,19 @@ use \Nullform\Fuzzio\Fuzzio;
 $needle = 'John'; // Reference string
 $haystack = ['Jon ', 'Johns', 'JANE', 'Janie']; // Array of strings
 
+$normalizer = function ($string) {
+    return trim(strtolower($string));
+};
+
 $fuzzio = new Fuzzio($needle);
 
 // Normalizer for $needle and $haystack
-$fuzzio->setNormalizer(function ($string) {
-    return trim(strtolower($string));
-});
+$fuzzio->setNormalizer($normalizer);
 // Set array of strings to calculate similarity
 $fuzzio->setHaystack($haystack);
+
+// Or like this
+$fuzzio = new Fuzzio($needle, $haystack, $normalizer);
 
 echo $fuzzio->getNeedle(); // John
 echo $fuzzio->getNormalizedNeedle(); // john
@@ -111,7 +116,7 @@ echo $closest->getLevenshteinDistance(); // 1
 
 ### Fuzzio
 
-- Fuzzio::**__construct**(*string* $needle, *string[]|null* $haystack = *null*)
+- Fuzzio::**__construct**(*string* $needle, *string[]|null* $haystack = *null*, *callable|null* $normalizer = null)
 - Fuzzio::**getNeedle**(): *string*
 - Fuzzio::**getNormalizedNeedle**(): *string*
 - Fuzzio::**setHaystack**(*string[]* $haystack): *Fuzzio*

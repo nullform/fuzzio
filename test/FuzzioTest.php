@@ -52,13 +52,19 @@ class FuzzioTest extends TestCase
     public function testSetNormalizer()
     {
         $fuzzio = new Fuzzio('Test', ['TEST1', 'TEST123']);
-        $fuzzio->setNormalizer(function ($string) {
+        $normalizer = function ($string) {
             return strtolower($string);
-        });
+        };
+        $fuzzio->setNormalizer($normalizer);
+
+        $fuzzioNorm = new Fuzzio('Test', ['TEST1', 'TEST123'], $normalizer);
 
         $this->assertTrue($fuzzio->getNormalizedNeedle() === 'test');
         $this->assertTrue($fuzzio->getClosestOne()->getNormalizedString() === 'test1');
         $this->assertTrue($fuzzio->getClosestOne()->getString() === 'TEST1');
+        $this->assertTrue($fuzzioNorm->getNormalizedNeedle() === 'test');
+        $this->assertTrue($fuzzioNorm->getClosestOne()->getNormalizedString() === 'test1');
+        $this->assertTrue($fuzzioNorm->getClosestOne()->getString() === 'TEST1');
     }
 
     public function testSetHaystack()
