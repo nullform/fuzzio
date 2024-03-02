@@ -45,8 +45,13 @@ class Fuzzio
     protected $utf8ToExtendedAsciiMap = [];
 
     /**
+     * @var null|callable
+     */
+    protected $normalizer = null;
+
+    /**
      * @param string $needle Reference string.
-     * @param string[]|null $haystack Strings for calculate similarity.
+     * @param string[]|null $haystack Strings for immediate similarity calculation.
      */
     public function __construct($needle, $haystack = null)
     {
@@ -66,7 +71,16 @@ class Fuzzio
     }
 
     /**
-     * @param string[]|null $haystack Strings for calculate similarity.
+     * @return string
+     * @see Fuzzio::setNormalizer()
+     */
+    public function getNormalizedNeedle()
+    {
+        return $this->normalize($this->needle);
+    }
+
+    /**
+     * @param string[]|null $haystack Strings for similarity calculation.
      * @return $this
      */
     public function setHaystack($haystack)
@@ -85,6 +99,15 @@ class Fuzzio
     public function getHaystack()
     {
         return $this->haystack;
+    }
+
+    /**
+     * @return string[]
+     * @see Fuzzio::setNormalizer()
+     */
+    public function getNormalizedHaystack()
+    {
+        return \array_map([$this, 'normalize'], $this->haystack);
     }
 
     /**
@@ -125,7 +148,7 @@ class Fuzzio
      */
     public function hasExactMatch()
     {
-        return \in_array($this->needle, $this->haystack);
+        return \in_array($this->getNormalizedNeedle(), $this->getNormalizedHaystack());
     }
 
     /**
@@ -239,25 +262,45 @@ class Fuzzio
     }
 
     /**
+     * Normalization function (for $needle and $haystack strings) to calculate similarity.
+     *
+     * The current similarity is always recalculated after setting a new normalizer.
+     *
+     * @param callable|null $normalizer Set null to drop normalizer.
+     * @return $this
+     */
+    public function setNormalizer($normalizer)
+    {
+        if (\is_callable($normalizer) || \is_null($normalizer)) {
+            $this->normalizer = $normalizer;
+        }
+
+        return $this->calculate();
+    }
+
+    /**
      * @return $this
      */
     protected function calculate()
     {
         $this->result = [];
 
+        $normalizedNeedle = $this->getNormalizedNeedle();
+
         foreach ($this->haystack as $string) {
+            $normalizedString = $this->normalize($string);
             if (isset($this->similarity[$string]) && isset($this->distance[$string])) {
                 $similarityPercent = $this->similarity[$string];
                 $distance = $this->distance[$string];
             } else {
-                $safeNeedle = $this->utf8ToExtendedAscii($this->needle);
-                $safeString = $this->utf8ToExtendedAscii($string);
+                $safeNeedle = $this->utf8ToExtendedAscii($normalizedNeedle);
+                $safeString = $this->utf8ToExtendedAscii($normalizedString);
                 \similar_text($safeNeedle, $safeString, $similarityPercent);
                 $distance = \levenshtein($safeNeedle, $safeString);
                 $this->similarity[$string] = $similarityPercent;
                 $this->distance[$string] = $distance;
             }
-            $this->result[] = new FuzzioString($string, $similarityPercent, $distance);
+            $this->result[] = new FuzzioString($string, $similarityPercent, $distance, $normalizedString);
         }
 
         if ($this->getMinSimilarityThreshold()) {
@@ -329,5 +372,22 @@ class Fuzzio
 
         // Finally remap non-ASCII characters.
         return \strtr($string, $this->utf8ToExtendedAsciiMap);
+    }
+
+    /**
+     * Normalize string.
+     *
+     * @param string $string
+     * @return string
+     */
+    protected function normalize($string)
+    {
+        $string = (string)$string;
+
+        if (\is_callable($this->normalizer)) {
+            $string = \call_user_func($this->normalizer, $string);
+        }
+
+        return $string;
     }
 }

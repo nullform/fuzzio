@@ -12,6 +12,55 @@ class FuzzioTest extends TestCase
 
     private $defaultHaystack = ['test', 'tested', 'testing', 'тест', 'test1', 'тесты', 'hello', 'world'];
 
+    public function testGetNeedle()
+    {
+        $fuzzio = new Fuzzio($this->defaultNeedle);
+
+        $this->assertEquals($this->defaultNeedle, $fuzzio->getNeedle());
+    }
+
+    public function testGetNormalizedNeedle()
+    {
+        $fuzzio = new Fuzzio('Test');
+        $fuzzio->setNormalizer(function ($string) {
+            return strtolower($string);
+        });
+
+        $this->assertEquals('test', $fuzzio->getNormalizedNeedle());
+    }
+
+    public function testGetHaystack()
+    {
+        $fuzzio = new Fuzzio($this->defaultNeedle, $this->defaultHaystack);
+
+        $this->assertEquals($this->defaultHaystack, $fuzzio->getHaystack());
+    }
+
+    public function testGetNormalizedHaystack()
+    {
+        $needle = 'TEST';
+        $haystack = ['Test1', 'Test2'];
+
+        $fuzzio = new Fuzzio($needle, $haystack);
+        $fuzzio->setNormalizer(function ($string) {
+            return strtolower($string);
+        });
+
+        $this->assertEquals(['test1', 'test2'], $fuzzio->getNormalizedHaystack());
+    }
+
+    public function testSetNormalizer()
+    {
+        $fuzzio = new Fuzzio('Test', ['TEST1', 'TEST123']);
+        $fuzzio->setNormalizer(function ($string) {
+            return strtolower($string);
+        });
+
+        $this->assertTrue($fuzzio->getNormalizedNeedle() === 'test');
+        $this->assertTrue($fuzzio->getClosestOne()->getNormalizedString() === 'test1');
+        $this->assertTrue($fuzzio->getClosestOne()->getString() === 'TEST1');
+    }
+
     public function testSetHaystack()
     {
         $fuzzio = new Fuzzio($this->defaultNeedle);
@@ -155,12 +204,16 @@ class FuzzioTest extends TestCase
 
     public function testCommon()
     {
-        $needle = 'john';
-        $haystack = ['john', 'jon', 'johns', 'jane', 'janie'];
+        $needle = 'John';
+        $haystack = ['John ', 'Jon', 'Johns', 'JANE', 'Janie'];
         $needleMb = 'иванв';
         $haystackMb = ['иванов', 'ивановы', 'ивановой', 'Иванов', 'иван', 'вано', 'ваня'];
 
-        $fuzzio = new Fuzzio($needle, $haystack);
+        $fuzzio = new Fuzzio($needle);
+        $fuzzio->setNormalizer(function ($string) {
+            return trim(strtolower($string));
+        });
+        $fuzzio->setHaystack($haystack);
         $fuzzioMb = new Fuzzio($needleMb, $haystackMb);
 
         $mostSimilar = $fuzzio->getClosestOne();
@@ -176,7 +229,7 @@ class FuzzioTest extends TestCase
 
         $this->assertTrue($fuzzio->hasExactMatch());
         $this->assertFalse($fuzzioMb->hasExactMatch());
-        $this->assertEquals('john', $mostSimilar->getString());
+        $this->assertEquals('John ', $mostSimilar->getString());
         $this->assertEquals('иванов', $mostSimilarMb->getString());
         $this->assertCount(2, $fuzzioMb->get(80, 1));
 

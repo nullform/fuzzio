@@ -70,21 +70,53 @@ $fuzzio->setMaxLevenshteinDistanceThreshold(1);
 // Set min similarity threshold
 $fuzzio->setMinSimilarityThreshold(80);
 
-// Set array of strings for calculate similarity
+// Set array of strings to calculate similarity
 $fuzzio->setHaystack($haystack);
 
 // Get strings with similarity >= 80% and Levenshtein distance <= 1
 $collection = $fuzzio->get();
 ```
 
+You can set a normalizer for more predictable calculations:
+
+```php
+use \Nullform\Fuzzio\Fuzzio;
+
+$needle = 'John'; // Reference string
+$haystack = ['Jon ', 'Johns', 'JANE', 'Janie']; // Array of strings
+
+$fuzzio = new Fuzzio($needle);
+
+// Normalizer for $needle and $haystack
+$fuzzio->setNormalizer(function ($string) {
+    return trim(strtolower($string));
+});
+// Set array of strings to calculate similarity
+$fuzzio->setHaystack($haystack);
+
+echo $fuzzio->getNeedle(); // John
+echo $fuzzio->getNormalizedNeedle(); // john
+
+// One with max similarity
+$closest = $fuzzio->getClosestOne();
+
+echo $closest; // Johns
+echo $closest->getString(); // Johns
+echo $closest->getNormalizedString(); // johns
+echo $closest->getSimilarity(); // 88.888888888889
+echo $closest->getLevenshteinDistance(); // 1
+```
+
 ## Methods
 
 ### Fuzzio
 
-- Fuzzio::**__construct**(*string* $needle, *string[]* $haystack = *null*)
+- Fuzzio::**__construct**(*string* $needle, *string[]|null* $haystack = *null*)
 - Fuzzio::**getNeedle**(): *string*
+- Fuzzio::**getNormalizedNeedle**(): *string*
 - Fuzzio::**setHaystack**(*string[]* $haystack): *Fuzzio*
 - Fuzzio::**getHaystack**(): *string[]*
+- Fuzzio::**getNormalizedHaystack**(): *string[]*
 - Fuzzio::**addToHaystack**(*string[]* $strings): *Fuzzio*
 - Fuzzio::**removeFromHaystack**(*string[]* $strings): *Fuzzio*
 - Fuzzio::**hasExactMatch()**: *bool*
@@ -97,10 +129,12 @@ $collection = $fuzzio->get();
 - Fuzzio::**setMinSimilarityThreshold**(*float* $threshold): *Fuzzio*
 - Fuzzio::**getMaxSimilarity**(): *float|null*
 - Fuzzio::**getMinLevenshteinDistance**(): *int|null*
+- Fuzzio::**setNormalizer**(*callable|null* $normalizer): *Fuzzio*
 
 ### FuzzioString
 
 - FuzzioString::**getString**(): *string*
+- FuzzioString::**getNormalizedString**(): *string*
 - FuzzioString::**getSimilarity**(): *float*
 - FuzzioString::**getLevenshteinDistance**(): *int*
 - FuzzioString::**__toString**(): *string*

@@ -10,6 +10,11 @@ class FuzzioString
     protected $string;
 
     /**
+     * @var string
+     */
+    protected $normalizedString;
+
+    /**
      * @var float
      */
     protected $similarity;
@@ -23,15 +28,19 @@ class FuzzioString
      * @param string $string
      * @param float $similarity
      * @param int $levenshteinDistance
+     * @param string $normalizedString
      */
-    public function __construct($string, $similarity, $levenshteinDistance)
+    public function __construct($string, $similarity, $levenshteinDistance, $normalizedString)
     {
         $this->string = (string)$string;
         $this->similarity = (float)$similarity;
         $this->levenshteinDistance = (int)$levenshteinDistance;
+        $this->normalizedString = (string)$normalizedString;
     }
 
     /**
+     * Original string.
+     *
      * @return string
      */
     public function getString()
@@ -40,9 +49,21 @@ class FuzzioString
     }
 
     /**
+     * Normalized string used to calculate similarity.
+     *
+     * @return string
+     * @see Fuzzio::setNormalizer()
+     */
+    public function getNormalizedString()
+    {
+        return $this->normalizedString;
+    }
+
+    /**
      * From 0 to 100.
      *
      * @return float
+     * @see \similar_text()
      */
     public function getSimilarity()
     {
@@ -51,6 +72,7 @@ class FuzzioString
 
     /**
      * @return int
+     * @see \levenshtein()
      */
     public function getLevenshteinDistance()
     {
