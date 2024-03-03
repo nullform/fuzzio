@@ -16,6 +16,7 @@ composer require nullform/fuzzio
 
 ```php
 use \Nullform\Fuzzio\Fuzzio;
+use \Nullform\Fuzzio\FuzzioString;
 
 $needle = 'john'; // Reference string
 $haystack = ['jon', 'johns', 'jane', 'janie']; // Array of strings
@@ -23,19 +24,19 @@ $haystack = ['jon', 'johns', 'jane', 'janie']; // Array of strings
 $fuzzio = new Fuzzio($needle, $haystack);
 
 // Get all strings from $haystack with calculated similarity and Levenshtein distance
-$all = $fuzzio->get(); // \Nullform\Fuzzio\FuzzioString[]
+$all = $fuzzio->get(); // FuzzioString[]
 
 // Get strings with similarity >= 80% and Levenshtein distance <= 1
-$filtered = $fuzzio->get(80, 1); // \Nullform\Fuzzio\FuzzioString[]
+$filtered = $fuzzio->get(80, 1); // FuzzioString[]
 
 // Get strings with Levenshtein distance <= 1
-$filtered = $fuzzio->get(null, 1); // \Nullform\Fuzzio\FuzzioString[]
+$filtered = $fuzzio->get(null, 1); // FuzzioString[]
 
 // With max similarity value
-$allClosest = $fuzzio->getClosest(); // \Nullform\Fuzzio\FuzzioString[]
+$allClosest = $fuzzio->getClosest(); // FuzzioString[]
 
 // One (first) with max similarity value
-$closestOne = $fuzzio->getClosestOne(); // \Nullform\Fuzzio\FuzzioString
+$closestOne = $fuzzio->getClosestOne(); // FuzzioString
 
 echo $closestOne; // johns
 echo $closestOne->getString(); // johns
