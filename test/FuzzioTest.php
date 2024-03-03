@@ -62,9 +62,15 @@ class FuzzioTest extends TestCase
         $this->assertTrue($fuzzio->getNormalizedNeedle() === 'test');
         $this->assertTrue($fuzzio->getClosestOne()->getNormalizedString() === 'test1');
         $this->assertTrue($fuzzio->getClosestOne()->getString() === 'TEST1');
+
         $this->assertTrue($fuzzioNorm->getNormalizedNeedle() === 'test');
         $this->assertTrue($fuzzioNorm->getClosestOne()->getNormalizedString() === 'test1');
         $this->assertTrue($fuzzioNorm->getClosestOne()->getString() === 'TEST1');
+
+        $fuzzioNorm->setNormalizer(null);
+
+        $this->assertTrue($fuzzioNorm->getNormalizedNeedle() === $fuzzioNorm->getNeedle());
+        $this->assertTrue($fuzzioNorm->getClosestOne()->getString() === $fuzzioNorm->getClosestOne()->getNormalizedString());
     }
 
     public function testSetHaystack()
