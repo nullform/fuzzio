@@ -2,6 +2,9 @@
 
 namespace Nullform\Fuzzio;
 
+/**
+ * Calculation result in Fuzzio context.
+ */
 class FuzzioString
 {
     /**

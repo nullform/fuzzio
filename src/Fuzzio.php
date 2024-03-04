@@ -2,6 +2,16 @@
 
 namespace Nullform\Fuzzio;
 
+/**
+ * Fuzzy search using similar_text() and levenshtein() functions.
+ *
+ * Example:
+ *
+ * ```
+ * $fuzzio = new Fuzzio($needle, $haystack, "mb_strtolower");
+ * $closestString = $fuzzio->getClosestOne()->getString();
+ * ```
+ */
 class Fuzzio
 {
     /**
@@ -361,7 +371,6 @@ class Fuzzio
      */
     protected function utf8ToExtendedAscii($string)
     {
-
         // Find all multibyte characters (cf. UTF-8 encoding specs).
         $matches = [];
         if (!\preg_match_all('/[\xC0-\xF7][\x80-\xBF]+/', $string, $matches)) {
