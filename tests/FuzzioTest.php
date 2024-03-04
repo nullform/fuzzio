@@ -1,6 +1,6 @@
 <?php
 
-namespace Nullform\Fuzzio\Test;
+namespace Nullform\Fuzzio\Tests;
 
 use Nullform\Fuzzio\Fuzzio;
 use Nullform\Fuzzio\FuzzioString;

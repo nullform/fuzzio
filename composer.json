@@ -25,7 +25,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Nullform\\Fuzzio\\Test\\": "test/"
+            "Nullform\\Fuzzio\\Tests\\": "tests/"
         }
     },
     "scripts": {
