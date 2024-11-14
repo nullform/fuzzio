@@ -7,8 +7,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Pavel Novikov",
-            "email": "nullform.developer@gmail.com"
+            "name": "Pavel Novikov"
         }
     ],
     "require": {
